@@ -11,7 +11,8 @@ export default class CreateQuestion extends Component {
         this.state={
             query:'',
             topic:'',
-            tags:[]
+            tags:[],
+            errors: {}
         }
     }
     removeTag = (i) => {
@@ -21,7 +22,7 @@ export default class CreateQuestion extends Component {
     }
     inputKeyDown = (e) => {
       const val = e.target.value;
-      if (e.key === 'Enter' && val) {
+      if (e.keyCode ===32  && val) {
         if (this.state.tags.find(tag => tag.toLowerCase() === val.toLowerCase())) {
           return;
         }
@@ -41,23 +42,33 @@ export default class CreateQuestion extends Component {
           topic: e.target.value
         });
       }
+    handleValidation(){
+      let query=this.state.query;
+      let formIsValid = true;
+      let errors = {};
+      if(query.length < 10){
+        formIsValid=false
+        errors["query"]="length should be greater than or equal to 10"
+      }
+      this.setState({errors: errors});
+    }
     onSubmit(e) {
         e.preventDefault();
+        let errors = {};
         const questions = {
           query: this.state.query,
           topic: this.state.topic,
           tags: this.state.tags,
         };
-        axios.post('http://localhost:5000/questions/add', questions).then(res => console.log(res.data));
+        if(this.handleValidation()){
+          axios.post('http://localhost:5000/questions/add', questions).then(res => console.log(res.data));
       //console.log(questions);
       window.location = '/';
+        }
+        else{
+          
+        }
       }
-    onSubmitTags(e){
-      e.preventDefault();
-      this.setState({
-        tags:e.target.value
-      })
-    }
   render() {
     return (
       <div className="container">
@@ -72,6 +83,7 @@ export default class CreateQuestion extends Component {
                 value={this.state.query}
                 onChange={this.onChangeQuestion}
                 />
+            <span style={{color: "red"}}>{this.state.errors["query"]}</span>
           </div>
           <div className="form-group">
             <label>Add Tags:</label>
@@ -83,7 +95,7 @@ export default class CreateQuestion extends Component {
                 </li>
               ))}
               <li className="input-tag__tags__input">
-                <input type="text" onKeyDown={this.inputKeyDown} ref={c => { this.tagInput = c; }} />
+                <input type="text" onKeyDown={this.inputKeyDown} ref={c => { this.tagInput = c; }} placeholder="press Spacebar" />
               </li>
             </ul>
           </div>

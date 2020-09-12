@@ -11,7 +11,7 @@ const Question = props => (
     </li>
     ))}</td>
     <td>
-      <Link to={"/edit/"+props.questions._id}>edit</Link> | <a href="#" onClick={() => { props.deleteQuestions(props.questions._id) }}>delete</a>
+       <a href="#" onClick={() => { props.deleteQuestions(props.questions._id) }}>delete</a>
     </td>
   </tr>
 )
@@ -20,25 +20,25 @@ export default class QuestionsList extends Component {
     super(props);
     this.state = {
       questions: [],
-      search:''
+      filtered:[]
     };
     
     this.deleteQuestions = this.deleteQuestions.bind(this);
-    this.onChangeSearch = this.onChangeSearch.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
   componentDidMount() {
     axios.get('http://localhost:5000/questions/')
      .then(response => {
-       this.setState({ questions: response.data });
+       this.setState({ questions: response.data,filtered:response.data});
      })
      .catch((error) => {
         console.log(error);
      })
   }
-  onChangeSearch(e){
+  componentWillReceiveProps(nextProps) {
     this.setState({
-      search:e.target.value
-    })
+      filtered: nextProps.questions
+    });
   }
   questionsList() {
     return this.state.questions.map(currentquestion => {
@@ -52,11 +52,39 @@ export default class QuestionsList extends Component {
       questions: this.state.questions.filter(el => el._id !== id)
     })
   }
+
+  handleChange(e) {
+    let currentList = [];
+    let newList = [];
+
+    if (e.target.value !== "") {
+      currentList = this.state.filtered;
+      newList = currentList.filter(question => {
+        const filter = e.target.value.toLowerCase();
+        const query = question.query.toLowerCase();
+        var flag=false
+        const tags=question.tags.filter(tags=>{
+          const tg=tags.toLowerCase();
+          if(tg.includes(filter)){
+            flag=true
+          }
+          return tg.includes(filter)
+        })
+        return (query.includes(filter))|| (flag);
+      });
+    } else {
+      newList = this.state.filtered;
+    }
+    this.setState({
+      questions:newList
+    });
+    }
+
   render() {
 
     return (
       <div>
-            <input label="search" icon="search" id="searchTxt" />
+          <span>Search By Query or Tags</span>  <input label="search" icon="search" onChange={this.handleChange} />
       <h3>Logged Questions</h3>
       <table className="table" >
         <thead className="thead-light">
@@ -76,12 +104,4 @@ export default class QuestionsList extends Component {
   }
 }
 
-// let search = document.getElementById('searchTxt');
-// if(search != null){
-//   search.addEventListener("input", function () {
 
-//     let inputVal = search.value.toLowerCase();
-//     console.log('Input event fired!', inputVal);
-    
-// })
-// }
