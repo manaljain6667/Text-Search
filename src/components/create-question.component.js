@@ -1,22 +1,36 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+
 export default class CreateQuestion extends Component {
     constructor(props){
         super(props);
 
         this.onChangeQuestion = this.onChangeQuestion.bind(this);
         this.onChangeTopic = this.onChangeTopic.bind(this);
-        this.onChangeTags = this.onChangeTags.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.onSubmitTags=this.onSubmitTags.bind(this);
         this.state={
             query:'',
             topic:'',
             tags:[]
         }
     }
-
-    
+    removeTag = (i) => {
+      const newTags = [ ...this.state.tags ];
+      newTags.splice(i, 1);
+      this.setState({ tags: newTags });
+    }
+    inputKeyDown = (e) => {
+      const val = e.target.value;
+      if (e.key === 'Enter' && val) {
+        if (this.state.tags.find(tag => tag.toLowerCase() === val.toLowerCase())) {
+          return;
+        }
+        this.setState({ tags: [...this.state.tags, val]});
+        this.tagInput.value = null;
+      } else if (e.key === 'Backspace' && !val) {
+        this.removeTag(this.state.tags.length - 1);
+      }
+    }
     onChangeQuestion(e) {
         this.setState({
           query: e.target.value
@@ -25,11 +39,6 @@ export default class CreateQuestion extends Component {
     onChangeTopic(e) {
         this.setState({
           topic: e.target.value
-        });
-      }
-    onChangeTags(e) {
-        this.setState({
-          tags: e.target.value
         });
       }
     onSubmit(e) {
@@ -64,6 +73,20 @@ export default class CreateQuestion extends Component {
                 onChange={this.onChangeQuestion}
                 />
           </div>
+          <div className="form-group">
+            <label>Add Tags:</label>
+            <ul className="input-tag__tags">
+                { this.state.tags.map((tag, i) => (
+                <li key={tag}>
+                  {tag}
+                  <button type="button" onClick={() => { this.removeTag(i); }}>Remove</button>
+                </li>
+              ))}
+              <li className="input-tag__tags__input">
+                <input type="text" onKeyDown={this.inputKeyDown} ref={c => { this.tagInput = c; }} />
+              </li>
+            </ul>
+          </div>
           <div className="form-group"> 
             <label>Topic: </label>
             <input  type="text"
@@ -73,16 +96,6 @@ export default class CreateQuestion extends Component {
                 onChange={this.onChangeTopic}
                 />
           </div>
-          <div className="form-group">
-            <input type="text"
-                value={this.state.tags}
-                onChange={this.onChangeTags}></input>
-            <button type="submit" 
-                className="btn btn-secondary"
-                onSubmit={this.onSubmitTags}
-                placeholder="Add Tag">Add Tag</button>
-          </div>
-
           <div className="form-group">
             <input type="submit" value="Create Question Log" className="btn btn-primary" />
           </div>

@@ -5,7 +5,11 @@ const Question = props => (
   <tr>
     <td className="query">{props.questions.query}</td>
     <td className="topic">{props.questions.topic}</td>
-    <td>{props.questions.tags}</td>
+    <td>{props.questions.tags.map((tag,i)=>(
+      <li key={tag}>
+      {tag}
+    </li>
+    ))}</td>
     <td>
       <Link to={"/edit/"+props.questions._id}>edit</Link> | <a href="#" onClick={() => { props.deleteQuestions(props.questions._id) }}>delete</a>
     </td>
