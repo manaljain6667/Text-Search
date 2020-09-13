@@ -10,9 +10,7 @@ const Question = props => (
       {tag}
     </li>
     ))}</td>
-    <td>
-       <a href="#" onClick={() => { props.deleteQuestions(props.questions._id) }}>delete</a>
-    </td>
+    
   </tr>
 )
 export default class QuestionsList extends Component {
@@ -23,7 +21,6 @@ export default class QuestionsList extends Component {
       filtered:[]
     };
     
-    this.deleteQuestions = this.deleteQuestions.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
   componentDidMount() {
@@ -42,16 +39,10 @@ export default class QuestionsList extends Component {
   }
   questionsList() {
     return this.state.questions.map(currentquestion => {
-      return <Question questions={currentquestion} deleteQuestions={this.deleteQuestions} key={currentquestion._id}/>;
+      return <Question questions={currentquestion}  key={currentquestion._id}/>;
     })
   }
-  deleteQuestions(id) {
-    axios.delete('http://localhost:5000/questions/'+id)
-      .then(res => console.log(res.data));
-    this.setState({
-      questions: this.state.questions.filter(el => el._id !== id)
-    })
-  }
+  
 
   handleChange(e) {
     let currentList = [];
@@ -92,7 +83,6 @@ export default class QuestionsList extends Component {
             <th>Questions</th>
             <th>Topic</th>
             <th>Tags</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
