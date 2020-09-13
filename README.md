@@ -7,6 +7,9 @@ In the project directory, you can run:
 ### `npm install`
 installs all the required dependencies for this project.
 
+after this do 
+### `npm install cors`
+
 ### `npm start`
 
 Runs the app in the development mode.<br />
